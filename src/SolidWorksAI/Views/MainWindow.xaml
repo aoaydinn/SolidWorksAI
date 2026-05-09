@@ -1,0 +1,360 @@
+<Window x:Class="SolidWorksAI.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SolidWorksAI.Views"
+        Title="SolidWorks AI — Çizim Asistanı"
+        Width="860" Height="640"
+        MinWidth="620" MinHeight="450"
+        Background="{StaticResource BgBrush}"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- ── ComboBox tam şablonu (koyu tema) ── -->
+        <Style x:Key="DarkComboBox" TargetType="ComboBox">
+            <Setter Property="Background"   Value="#2A2A3E"/>
+            <Setter Property="Foreground"   Value="#E0E0F0"/>
+            <Setter Property="BorderBrush"  Value="#6C8EBF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding"      Value="8,4"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="Height"       Value="30"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4">
+                                <Grid>
+                                    <ContentPresenter x:Name="ContentSite"
+                                                      IsHitTestVisible="False"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      Margin="8,0,28,0"
+                                                      VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="Placeholder"
+                                               Text="— model seç —"
+                                               Foreground="#606080"
+                                               FontStyle="Italic"
+                                               FontSize="12"
+                                               Margin="8,0,28,0"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <Path x:Name="Arrow"
+                                          Data="M0,0 L4,4 L8,0"
+                                          Stroke="#9090B0" StrokeThickness="1.5"
+                                          Width="8" Height="5"
+                                          HorizontalAlignment="Right"
+                                          Margin="0,0,10,0"
+                                          VerticalAlignment="Center"
+                                          IsHitTestVisible="False"/>
+                                    <ToggleButton Focusable="False"
+                                                  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  ClickMode="Press"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"/>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="Popup"
+                                   Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Grid MinWidth="{TemplateBinding ActualWidth}"
+                                      MaxHeight="300">
+                                    <Border Background="#1E1E35"
+                                            BorderBrush="#6C8EBF"
+                                            BorderThickness="1"
+                                            CornerRadius="0,0,4,4">
+                                        <ScrollViewer CanContentScroll="True">
+                                            <StackPanel IsItemsHost="True"
+                                                        KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#A0B8D8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="ComboBoxItem">
+                        <Setter Property="Foreground"  Value="#E0E0F0"/>
+                        <Setter Property="Background"  Value="Transparent"/>
+                        <Setter Property="Padding"     Value="10,6"/>
+                        <Setter Property="FontSize"    Value="13"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ComboBoxItem">
+                                    <Border x:Name="ItemBorder"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}">
+                                        <TextBlock Text="{TemplateBinding Content}"
+                                                   Foreground="{TemplateBinding Foreground}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsHighlighted" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#3A4A6A"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="ItemBorder" Property="Background" Value="#2A4070"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Chat mesaj şablonları ── -->
+        <DataTemplate x:Key="UserTemplate">
+            <Grid Margin="60,4,8,4" HorizontalAlignment="Right">
+                <Border Background="{StaticResource UserMsgBrush}" CornerRadius="12,12,2,12" Padding="12,8"
+                        Cursor="Hand" ToolTip="Kopyalamak için tıkla"
+                        MouseLeftButtonUp="Message_Click">
+                    <TextBlock Text="{Binding Text}" Foreground="White" FontWeight="SemiBold"
+                               TextWrapping="Wrap" MaxWidth="520"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="AssistantTemplate">
+            <Grid Margin="8,4,60,4" HorizontalAlignment="Left">
+                <Border Background="{StaticResource AssistantMsgBrush}" CornerRadius="12,12,12,2" Padding="12,8"
+                        Cursor="Hand" ToolTip="Kopyalamak için tıkla"
+                        MouseLeftButtonUp="Message_Click">
+                    <TextBlock Text="{Binding Text}" Foreground="{StaticResource TextBrush}"
+                               TextWrapping="Wrap" MaxWidth="520" FontFamily="Consolas" FontSize="11"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ActionLogTemplate">
+            <Grid Margin="8,1,8,1">
+                <Border Background="{StaticResource ActionLogBrush}" CornerRadius="4" Padding="10,4"
+                        Cursor="Hand" ToolTip="Kopyalamak için tıkla"
+                        MouseLeftButtonUp="Message_Click">
+                    <TextBlock Text="{Binding Text}" Foreground="#80CC80"
+                               FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ErrorTemplate">
+            <Grid Margin="8,2,8,2">
+                <Border Background="{StaticResource ErrorBrush}" CornerRadius="4" Padding="10,6">
+                    <TextBlock Text="{Binding Text}" Foreground="#FF9090" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SystemTemplate">
+            <Grid Margin="8,2,8,2">
+                <Border Background="{StaticResource SystemBrush}" CornerRadius="4" Padding="10,5">
+                    <TextBlock Text="{Binding Text}" Foreground="{StaticResource SubTextBrush}"
+                               FontStyle="Italic" FontSize="11" TextWrapping="Wrap"/>
+                </Border>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══ TOPBAR ═══════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="#3A3A55" BorderThickness="0,0,0,1">
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>  <!-- SW göstergesi -->
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>  <!-- Bağlan -->
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>  <!-- Ollama göstergesi -->
+                    <ColumnDefinition Width="*"/>     <!-- boşluk -->
+                    <ColumnDefinition Width="Auto"/>  <!-- Model: etiketi -->
+                    <ColumnDefinition Width="6"/>
+                    <ColumnDefinition Width="200"/>   <!-- Model dropdown -->
+                    <ColumnDefinition Width="6"/>
+                    <ColumnDefinition Width="30"/>    <!-- Yenile -->
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>  <!-- Temizle -->
+                </Grid.ColumnDefinitions>
+
+                <!-- SolidWorks durum göstergesi -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="9" Height="9" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource DisconnBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Fill" Value="{StaticResource ConnectedBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text"       Value="SW Bağlı Değil"/>
+                                <Setter Property="Foreground" Value="{StaticResource DisconnBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                        <Setter Property="Text"       Value="SW Bağlı"/>
+                                        <Setter Property="Foreground" Value="{StaticResource ConnectedBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <Button Grid.Column="2" Content="Bağlan"
+                        Command="{Binding ConnectCommand}" Width="70"/>
+
+                <!-- Ollama durum göstergesi -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="9" Height="9" VerticalAlignment="Center">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="{StaticResource DisconnBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOllamaConnected}" Value="True">
+                                        <Setter Property="Fill" Value="#FF9800"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" FontSize="12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text"       Value="Ollama Yok"/>
+                                <Setter Property="Foreground" Value="{StaticResource DisconnBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOllamaConnected}" Value="True">
+                                        <Setter Property="Text"       Value="Ollama Bağlı"/>
+                                        <Setter Property="Foreground" Value="#FF9800"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Model seçimi -->
+                <TextBlock Grid.Column="6" Text="Model:"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource SubTextBrush}"/>
+
+                <ComboBox Grid.Column="8"
+                          Style="{StaticResource DarkComboBox}"
+                          ItemsSource="{Binding AvailableModels}"
+                          SelectedItem="{Binding SelectedModel}"
+                          VerticalAlignment="Center"/>
+
+                <Button Grid.Column="10" Content="↺"
+                        ToolTip="Ollama modellerini yenile"
+                        Command="{Binding LoadModelsCommand}"
+                        FontSize="15"/>
+
+                <Button Grid.Column="12" Content="Temizle"
+                        Command="{Binding ClearMessagesCommand}"
+                        Width="65" Background="#444466"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══ CHAT LOG ═════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="1" x:Name="ChatScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Background="{StaticResource BgBrush}"
+                      Padding="0,4">
+            <ItemsControl ItemsSource="{Binding Messages}" x:Name="ChatList">
+                <ItemsControl.ItemTemplateSelector>
+                    <local:ChatTemplateSelector
+                        UserTemplate="{StaticResource UserTemplate}"
+                        AssistantTemplate="{StaticResource AssistantTemplate}"
+                        ActionLogTemplate="{StaticResource ActionLogTemplate}"
+                        ErrorTemplate="{StaticResource ErrorTemplate}"
+                        SystemTemplate="{StaticResource SystemTemplate}"/>
+                </ItemsControl.ItemTemplateSelector>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- İşleniyor göstergesi -->
+        <Border Grid.Row="1" VerticalAlignment="Bottom" Height="26"
+                Background="#CC000020"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+            <TextBlock Text="⏳ İşleniyor..."
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{StaticResource AccentBrush}" FontSize="11"/>
+        </Border>
+
+        <!-- ═══ INPUT BAR ═════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Background="{StaticResource SurfaceBrush}"
+                BorderBrush="#3A3A55" BorderThickness="0,1,0,0">
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBox Grid.Column="0"
+                         Text="{Binding UserInput, UpdateSourceTrigger=PropertyChanged}"
+                         x:Name="InputBox"
+                         AcceptsReturn="False"
+                         VerticalContentAlignment="Center"
+                         Height="36"
+                         KeyDown="InputBox_KeyDown"/>
+
+                <Button Grid.Column="2" Content="Gönder"
+                        Command="{Binding SendCommand}"
+                        Width="80" Height="36" IsDefault="True"/>
+
+                <Button Grid.Column="4" Content="✕"
+                        Command="{Binding CancelCommand}"
+                        Width="36" Height="36"
+                        Background="#664444" ToolTip="İptal"/>
+            </Grid>
+        </Border>
+    </Grid>
+
+</Window>

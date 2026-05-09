@@ -1,0 +1,73 @@
+<Application x:Class="SolidWorksAI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Temel renkler -->
+            <SolidColorBrush x:Key="BgBrush"           Color="#1E1E2E"/>
+            <SolidColorBrush x:Key="SurfaceBrush"      Color="#2A2A3E"/>
+            <SolidColorBrush x:Key="UserMsgBrush"      Color="#3B5998"/>
+            <SolidColorBrush x:Key="AssistantMsgBrush" Color="#2D2D42"/>
+            <SolidColorBrush x:Key="ActionLogBrush"    Color="#1A3A1A"/>
+            <SolidColorBrush x:Key="ErrorBrush"        Color="#5C1A1A"/>
+            <SolidColorBrush x:Key="SystemBrush"       Color="#1A2A3A"/>
+            <SolidColorBrush x:Key="TextBrush"         Color="#E0E0F0"/>
+            <SolidColorBrush x:Key="SubTextBrush"      Color="#9090B0"/>
+            <SolidColorBrush x:Key="AccentBrush"       Color="#6C8EBF"/>
+            <SolidColorBrush x:Key="ConnectedBrush"    Color="#4CAF50"/>
+            <SolidColorBrush x:Key="DisconnBrush"      Color="#F44336"/>
+
+            <!-- Global font -->
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="FontSize" Value="13"/>
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="12,6"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="0.85"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.4"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="6,4"/>
+                <Setter Property="FontSize" Value="13"/>
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="8,6"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="CaretBrush" Value="White"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
