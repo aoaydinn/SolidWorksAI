@@ -68,5 +68,3 @@ Proje üç ana katman üzerine kurulmuştur:
 ## 🛠 Geliştirme Notları
 Yeni bir aksiyon eklemek için `src/SolidWorksAI/Services/ActionRegistry.cs` dosyasına yeni bir handler kaydetmeniz ve `src/SolidWorksAI/Schemas/DrawingActionsSchema.json` dosyasını güncellemeniz yeterlidir.
 
----
-*Developed with Advanced Agentic Coding for SolidWorks Geometric AI Automation.*
